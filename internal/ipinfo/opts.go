@@ -1,14 +1,14 @@
-package main
+package ipinfo
 
 import (
-	"flag"
+	"github.com/namsral/flag"
 )
 
 type Opts struct {
-	Locale       string
-	Port         int
-	Verbose      bool
-	Version      bool
+	Locale  string
+	Port    int
+	Verbose bool
+	Version bool
 }
 
 func ParseOpts() *Opts {

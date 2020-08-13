@@ -6,27 +6,23 @@ import (
 	"net/http"
 	"os"
 	"regexp"
-	"strings"
 	"strconv"
+	"strings"
 	"time"
 
+	"github.com/jnovack/ipinfo/internal/ipinfo"
+	"github.com/mattn/go-isatty"
+	"github.com/namsral/flag"
 	"github.com/oschwald/geoip2-golang"
-	log "github.com/sirupsen/logrus"
+	"github.com/rs/zerolog"
+	"github.com/rs/zerolog/log"
 )
 
 // The GeoIP databases
 var dbCity *geoip2.Reader
 var dbASN *geoip2.Reader
 
-var opts *Opts
-
-func init() {
-	opts = ParseOpts()
-	if opts.Version == true {
-		os.Exit(0)
-	}
-	prometheusInit()
-}
+var opts *ipinfo.Opts
 
 func main() {
 
@@ -34,42 +30,41 @@ func main() {
 	var err error
 	dbCity, err = geoip2.Open("GeoLite2-City.mmdb")
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("Error: TODO FIXME")
 	}
 
 	dbASN, err = geoip2.Open("GeoLite2-ASN.mmdb")
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("Error: TODO FIXME")
 	}
 
 	http.Handle("/", http.HandlerFunc(infoLookup))
-	log.Info("Listening on :" + strconv.FormatInt(int64(opts.Port),10))
-	log.Fatal(http.ListenAndServe(":" + strconv.FormatInt(int64(opts.Port),10), nil))
+	log.Info().Msg("Listening on :" + strconv.FormatInt(int64(opts.Port), 10))
+	http.ListenAndServe(":"+strconv.FormatInt(int64(opts.Port), 10), nil)
 }
-
 
 // https://github.com/multiverse-os/ip/blob/1c436abe71f332ef3d2342c7a08a8ad25ae379b9/records.go
 
 type codename struct {
-	Code          string   `json:"code"`
-	Name          string   `json:"name"`
+	Code string `json:"code"`
+	Name string `json:"name"`
 }
 
 type location struct {
-	Latitude      float64  `json:"latitude"`
-	Longitude     float64  `json:"longitude"`
+	Latitude  float64 `json:"latitude"`
+	Longitude float64 `json:"longitude"`
 }
 
 type ipInfo struct {
-	IP            string   `json:"ip"`
-	City          string   `json:"city"`
-	Region        string   `json:"region"`
-	Country       codename `json:"country"`
-	Continent     codename `json:"continent"`
-	Location      location `json:"location"`
-	Postal        string   `json:"postal"`
-	ASN           uint     `json:"asn"`
-    Organization  string   `json:"organization"`
+	IP           string   `json:"ip"`
+	City         string   `json:"city"`
+	Region       string   `json:"region"`
+	Country      codename `json:"country"`
+	Continent    codename `json:"continent"`
+	Location     location `json:"location"`
+	Postal       string   `json:"postal"`
+	ASN          uint     `json:"asn"`
+	Organization string   `json:"organization"`
 }
 
 func infoLookup(w http.ResponseWriter, r *http.Request) {
@@ -109,7 +104,7 @@ func infoLookup(w http.ResponseWriter, r *http.Request) {
 
 	ip := net.ParseIP(IPAddress)
 	if ip == nil {
-		http.Error(w, "Invalid IP address" , http.StatusBadRequest)
+		http.Error(w, "Invalid IP address", http.StatusBadRequest)
 		retval = "400"
 		return
 	}
@@ -117,13 +112,13 @@ func infoLookup(w http.ResponseWriter, r *http.Request) {
 	// Query the maxmind database for that IP address.
 	recCity, err := dbCity.City(ip)
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("Error: TODO FIXME")
 	}
 
 	// Query the maxmind database for that IP address.
 	recASN, err := dbASN.ASN(ip)
 	if err != nil {
-		log.Fatal(err)
+		log.Error().Err(err).Msg("Error: TODO FIXME")
 	}
 
 	// String containing the region/subdivision of the IP. (E.g.: Scotland, or
@@ -135,32 +130,32 @@ func infoLookup(w http.ResponseWriter, r *http.Request) {
 		sd = recCity.Subdivisions[0].Names[opts.Locale]
 	}
 
-	loc := location {
-		Latitude: 		recCity.Location.Latitude,
-		Longitude:		recCity.Location.Longitude,
+	loc := location{
+		Latitude:  recCity.Location.Latitude,
+		Longitude: recCity.Location.Longitude,
 	}
 
-	country := codename {
-		Code:           recCity.Country.IsoCode,
-		Name:           recCity.Country.Names[opts.Locale],
+	country := codename{
+		Code: recCity.Country.IsoCode,
+		Name: recCity.Country.Names[opts.Locale],
 	}
 
-	continent := codename {
-		Code:           recCity.Continent.Code,
-		Name:           recCity.Continent.Names[opts.Locale],
+	continent := codename{
+		Code: recCity.Continent.Code,
+		Name: recCity.Continent.Names[opts.Locale],
 	}
 
 	// Fill up the data array with the geoip data.
 	d := ipInfo{
-		IP:            ip.String(),
-		Country:       country,
-		City:          recCity.City.Names[opts.Locale],
-		Region:        sd,
-		Continent:     continent,
-		Postal:        recCity.Postal.Code,
-		Location:      loc,
-		ASN:           recASN.AutonomousSystemNumber,
-		Organization:  recASN.AutonomousSystemOrganization,
+		IP:           ip.String(),
+		Country:      country,
+		City:         recCity.City.Names[opts.Locale],
+		Region:       sd,
+		Continent:    continent,
+		Postal:       recCity.Postal.Code,
+		Location:     loc,
+		ASN:          recASN.AutonomousSystemNumber,
+		Organization: recASN.AutonomousSystemOrganization,
 	}
 
 	// Since we don't have HTML output, nor other data from geo data,
@@ -195,4 +190,28 @@ func DefangIP(ip string) string {
 	ss := strings.Split(ip, ":")
 	ip = strings.Join(ss[:len(ss)-1], ":")
 	return ip
+}
+
+func init() {
+	opts = ipinfo.ParseOpts()
+	if opts.Version == true {
+		os.Exit(0)
+	}
+	ipinfo.PrometheusInit()
+
+	if isatty.IsTerminal(os.Stdout.Fd()) {
+		// Format using ConsoleWriter if running straight
+		zerolog.TimestampFunc = func() time.Time {
+			return time.Now().In(time.Local)
+		}
+		log.Logger = log.Output(zerolog.ConsoleWriter{Out: os.Stderr, TimeFormat: time.RFC3339})
+	} else {
+		// Format using JSON if running as a service (or container)
+		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
+	}
+
+	// TODO Permit run-time setting of LogLevel
+	zerolog.SetGlobalLevel(zerolog.InfoLevel)
+
+	flag.Parse()
 }
