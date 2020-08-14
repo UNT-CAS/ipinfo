@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -58,7 +59,7 @@ func init() {
 // Lookup the IP Address within the request.
 func Lookup(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
-	retval := "200"
+	retval := http.StatusTeapot
 
 	var IPAddress string
 	var ipinfo ipInfo
@@ -67,7 +68,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		// Get the current time, so that we can then calculate the execution time.
 		dur := float64(float64(time.Since(start).Nanoseconds()) / 1000000)
 
-		duration.WithLabelValues(retval).Observe(dur)
+		duration.WithLabelValues(strconv.Itoa(retval)).Observe(dur)
 		// Log how much time it took to respond to the request, when we're done.
 		log.Info().
 			Float64("duration", dur).
@@ -75,7 +76,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 			Str("method", r.Method).
 			Str("remote", defangIP(r.RemoteAddr)).
 			Str("url", r.URL.EscapedPath()).
-			Str("status", retval).
+			Int("status", retval).
 			Msg("")
 	}()
 
@@ -84,8 +85,8 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 	// IPv6 = ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:ABCD (slash + 39 characters)
 	// IPv4-mapped IPv6 = ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:192.168.158.190 (slash + 45 characters)
 	if len(r.URL.Path) > 46 {
-		http.Error(w, "Forbidden", http.StatusBadRequest)
-		retval = "403"
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		retval = http.StatusForbidden
 		return
 	}
 
@@ -104,8 +105,8 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 
 	ip := net.ParseIP(IPAddress)
 	if ip == nil {
-		http.Error(w, "422 Unprocessable Entity", http.StatusBadRequest)
-		retval = "422"
+		http.Error(w, "422 Unprocessable Entity", http.StatusUnprocessableEntity)
+		retval = http.StatusUnprocessableEntity
 		return
 	}
 
@@ -173,6 +174,8 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 	if enableJSONP {
 		w.Write([]byte(");"))
 	}
+
+	retval = http.StatusOK
 }
 
 // Very restrictive, but this way it shouldn't completely fuck up.
