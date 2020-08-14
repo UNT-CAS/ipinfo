@@ -55,9 +55,13 @@ func init() {
 
 }
 
+// Lookup the IP Address within the request.
 func Lookup(w http.ResponseWriter, r *http.Request) {
 	start := time.Now()
 	retval := "200"
+
+	var IPAddress string
+	IPAddress = strings.Split(r.URL.Path, "/")[1]
 
 	defer func() {
 		// Get the current time, so that we can then calculate the execution time.
@@ -66,16 +70,14 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		duration.WithLabelValues(retval).Observe(dur)
 		// Log how much time it took to respond to the request, when we're done.
 		log.Debug().Msgf(
-			"%s %s %s %.3f",
+			"%s %s %s %s %.3f",
 			defangIP(r.RemoteAddr),
 			r.Method,
-			r.URL.Path,
+			IPAddress,
+			retval,
 			dur,
 		)
 	}()
-
-	var IPAddress string
-	IPAddress = strings.Split(r.URL.Path, "/")[1]
 
 	// Set the requested IP to the user's request request IP, if we got no address.
 	if IPAddress == "" || IPAddress == "self" {
