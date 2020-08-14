@@ -80,7 +80,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 	}()
 
 	// Set the requested IP to the user's request request IP, if we got no address.
-	if IPAddress == "" || IPAddress == "self" {
+	if IPAddress == "" || IPAddress == "self" || IPAddress == "me" {
 		// The request is most likely being done through a reverse proxy.
 		if realIP, ok := r.Header["X-Real-Ip"]; ok && len(r.Header["X-Real-Ip"]) > 0 {
 			IPAddress = realIP[0]
