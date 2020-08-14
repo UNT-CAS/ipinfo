@@ -79,6 +79,16 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		)
 	}()
 
+	// IP addresses will never be longer than 46 characters
+	// IPv4 = 255.255.255.255 (slash + 15 characters)
+	// IPv6 = ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:ABCD (slash + 39 characters)
+	// IPv4-mapped IPv6 = ABCD:ABCD:ABCD:ABCD:ABCD:ABCD:192.168.158.190 (slash + 45 characters)
+	if len(r.URL.Path) > 46 {
+		http.Error(w, "Forbidden", http.StatusBadRequest)
+		retval = "403"
+		return
+	}
+
 	// Set the requested IP to the user's request request IP, if we got no address.
 	if IPAddress == "" || IPAddress == "self" || IPAddress == "me" {
 		// The request is most likely being done through a reverse proxy.
