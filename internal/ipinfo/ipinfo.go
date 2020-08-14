@@ -45,12 +45,12 @@ func init() {
 	var err error
 	dbCity, err = geoip2.Open("assets/GeoLite2-City.mmdb")
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to open City database")
+		log.Panic().Err(err).Msg("Unable to open City database, cannot continue")
 	}
 
 	dbASN, err = geoip2.Open("assets/GeoLite2-ASN.mmdb")
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to open ASN database")
+		log.Warn().Err(err).Msg("Unable to open ASN database, lookups will not have ASN or Organization info")
 	}
 
 }
