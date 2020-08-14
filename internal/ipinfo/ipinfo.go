@@ -9,6 +9,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/jnovack/ipinfo/pkg/chdir"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/rs/zerolog/log"
 )
@@ -41,15 +42,15 @@ type ipInfo struct {
 	Organization string   `json:"organization"`
 }
 
-func init() {
-	// Initialize the database.
+// Initialize the database.
+func Initialize() {
 	var err error
-	dbCity, err = geoip2.Open("assets/GeoLite2-City.mmdb")
+	dbCity, err = geoip2.Open(chdir.WorkDir() + "GeoLite2-City.mmdb")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to open City database, cannot continue")
 	}
 
-	dbASN, err = geoip2.Open("assets/GeoLite2-ASN.mmdb")
+	dbASN, err = geoip2.Open(chdir.WorkDir() + "GeoLite2-ASN.mmdb")
 	if err != nil {
 		log.Warn().Err(err).Msg("Unable to open ASN database, lookups will not have ASN or Organization info")
 	}
@@ -129,7 +130,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	// String containing the region/subdivision of the IP. (E.g.: Scotland, or  California).
+	// String containing the region/subdivision of the IP. (E.g.: Scotland, or California).
 	// If there are subdivisions for this IP, set sd as the first element in the array's name.
 	if recCity.Subdivisions != nil {
 		ipinfo.Region = recCity.Subdivisions[0].Names[*Locale]

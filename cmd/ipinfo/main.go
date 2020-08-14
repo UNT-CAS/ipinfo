@@ -43,6 +43,8 @@ func init() {
 
 	flag.Parse()
 
+	ipinfo.Initialize()
+
 	var zerologlevel zerolog.Level
 	switch *ipinfo.Loglevel {
 	case -1:
