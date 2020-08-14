@@ -92,8 +92,8 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 
 	ip := net.ParseIP(IPAddress)
 	if ip == nil {
-		http.Error(w, "Invalid IP address", http.StatusBadRequest)
-		retval = "400"
+		http.Error(w, "422 Unprocessable Entity", http.StatusBadRequest)
+		retval = "422"
 		return
 	}
 
