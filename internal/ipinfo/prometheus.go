@@ -18,7 +18,7 @@ var (
 	)
 )
 
-func PrometheusInit() {
+func init() {
 	prometheus.MustRegister(duration)
 	http.Handle("/metrics", promhttp.Handler())
 }
