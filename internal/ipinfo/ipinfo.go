@@ -61,7 +61,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 	retval := "200"
 
 	var IPAddress string
-	IPAddress = strings.Split(r.URL.Path, "/")[1]
+	var ipinfo ipInfo
 
 	defer func() {
 		// Get the current time, so that we can then calculate the execution time.
@@ -69,14 +69,14 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 
 		duration.WithLabelValues(retval).Observe(dur)
 		// Log how much time it took to respond to the request, when we're done.
-		log.Debug().Msgf(
-			"%s %s %s %s %.3f",
-			defangIP(r.RemoteAddr),
-			r.Method,
-			IPAddress,
-			retval,
-			dur,
-		)
+		log.Info().
+			Float64("duration", dur).
+			Str("ipaddress", ipinfo.IP).
+			Str("method", r.Method).
+			Str("remote", defangIP(r.RemoteAddr)).
+			Str("url", r.URL.EscapedPath()).
+			Str("status", retval).
+			Msg("")
 	}()
 
 	// IP addresses will never be longer than 46 characters
@@ -88,6 +88,8 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		retval = "403"
 		return
 	}
+
+	IPAddress = strings.Split(r.URL.Path, "/")[1]
 
 	// Set the requested IP to the user's request request IP, if we got no address.
 	if IPAddress == "" || IPAddress == "self" || IPAddress == "me" {
@@ -107,10 +109,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Create return structure
-	ipinfo := ipInfo{
-		IP: ip.String(),
-	}
+	ipinfo.IP = ip.String()
 
 	// Query the maxmind database for that IP address.
 	recCity, err := dbCity.City(ip)
