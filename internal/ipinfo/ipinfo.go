@@ -46,7 +46,7 @@ func init() {
 	var err error
 	dbCity, err = geoip2.Open("assets/GeoLite2-City.mmdb")
 	if err != nil {
-		log.Panic().Err(err).Msg("Unable to open City database, cannot continue")
+		log.Fatal().Err(err).Msg("Unable to open City database, cannot continue")
 	}
 
 	dbASN, err = geoip2.Open("assets/GeoLite2-ASN.mmdb")
