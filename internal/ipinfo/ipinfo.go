@@ -105,7 +105,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 
 	ip := net.ParseIP(IPAddress)
 	if ip == nil {
-		http.Error(w, "422 Unprocessable Entity", http.StatusUnprocessableEntity)
+		http.Error(w, "Unprocessable Entity", http.StatusUnprocessableEntity)
 		retval = http.StatusUnprocessableEntity
 		return
 	}
