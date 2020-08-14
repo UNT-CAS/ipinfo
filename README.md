@@ -10,7 +10,7 @@ ipinfo.io sets a rate limiting of 1000 requests per day. I understand it, althou
 
 This is really similiar to the way ipinfo.io does it. Every response will be identical from ipinfo.io's... almost. So, basic usage: you will just make a GET request to <http://ip.zxq.co/[ip]>, like http://ip.zxq.co/8.8.8.8. Need to get something specific? http://ip.zxq.co/8.8.8.8/country.
 
-```
+```json
 $ curl "http://localhost/8.8.8.8"
 {
   "ip": "8.8.8.8",
@@ -30,33 +30,21 @@ $ curl "http://localhost/8.8.8.8"
   },
   "postal":"94040",
   "asn":15169,
-  "organization":
-  "Google LLC"
+  "organization": "Google LLC"
 }
 ```
 
 Much better! :smile:
 
-But what if we don't know the user's IP? In that case, then, we can call `/`.
+You can also get returned your information by just calling `/`.
 
-```
-$ curl "ip.zxq.co/"
-{
-  "city": "",
-  "continent": "EU",
-  "continent_full": "Europe",
-  "country": "IT",
-  "country_full": "Italy",
-  "ip": "87.16.45.15",
-  "loc": "42.8333,12.8333",
-  "postal": "",
-  "region": ""
-}
+```sh
+$ curl "http://ip.zxq.co/"
 ```
 
 We're aren't done just yet! You want to use JSONP. You guessed it, we are using the same system as ipinfo.io's. Just provide a `callback` parameter to your GET request.
 
-```
+```javascript
 $ curl "ip.zxq.co/8.8.8.8?pretty=1&callback=myFancyFunction"
 /**/ typeof myFancyFunction === 'function' && myFancyFunction({
   "city": "Mountain View",
