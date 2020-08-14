@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/jnovack/ipinfo/pkg/chdir"
 	"github.com/oschwald/geoip2-golang"
 	"github.com/rs/zerolog/log"
 )
@@ -42,15 +41,16 @@ type ipInfo struct {
 	Organization string   `json:"organization"`
 }
 
-// Initialize the database.
-func Initialize() {
+// Initialize the database from a working directory (should have trailing slash)
+func Initialize(workDir string) {
 	var err error
-	dbCity, err = geoip2.Open(chdir.WorkDir() + "GeoLite2-City.mmdb")
+
+	dbCity, err = geoip2.Open(workDir + "GeoLite2-City.mmdb")
 	if err != nil {
 		log.Fatal().Err(err).Msg("Unable to open City database, cannot continue")
 	}
 
-	dbASN, err = geoip2.Open(chdir.WorkDir() + "GeoLite2-ASN.mmdb")
+	dbASN, err = geoip2.Open(workDir + "GeoLite2-ASN.mmdb")
 	if err != nil {
 		log.Warn().Err(err).Msg("Unable to open ASN database, lookups will not have ASN or Organization info")
 	}

@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/jnovack/ipinfo/internal/ipinfo"
+	"github.com/jnovack/ipinfo/pkg/chdir"
 	"github.com/mattn/go-isatty"
 	"github.com/namsral/flag"
 	"github.com/rs/zerolog"
@@ -43,7 +44,7 @@ func init() {
 
 	flag.Parse()
 
-	ipinfo.Initialize()
+	ipinfo.Initialize(chdir.WorkDir())
 
 	var zerologlevel zerolog.Level
 	switch *ipinfo.Loglevel {
