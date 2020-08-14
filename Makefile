@@ -7,6 +7,7 @@ DESCRIPTION := $(shell curl -s https://api.github.com/repos/${PACKAGE} \
     | grep '"description".*' \
     | head -n 1 \
     | cut -d '"' -f 4)
+WORKDIR := $(shell pwd)
 
 GO_LDFLAGS := "-w -s \
 	-X github.com/jnovack/go-version.Package=${PACKAGE} \
@@ -41,3 +42,7 @@ build:
 .PHONY: docker
 docker:
 	docker build ${DOCKER_BUILD_ARGS} -t ${APPLICATION}:latest .
+
+.PHONY: test
+test:
+	go test ./... -timeout 30s
