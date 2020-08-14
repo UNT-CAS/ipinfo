@@ -17,7 +17,7 @@ func main() {
 	http.HandleFunc("/favicon.ico", func(w http.ResponseWriter, r *http.Request) {
 		return
 		// TODO Add Favicon Functionality
-		// bytes, err := base64.StdEncoding.DecodeString(favicon)
+		// bytes, err := base64.StdEncoding.DecodeString(favicon.Icon)
 		// if err != nil {
 		// 	log.Error().Err(err).Msg("Unable to decode 'favicon' variable")
 		// }
@@ -60,5 +60,3 @@ func init() {
 	zerolog.SetGlobalLevel(zerologlevel)
 
 }
-
-var favicon = "iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABUklEQVQ4T63TTUsCYRDA8f9q5rYL1kEiEOwcLRWISKeI+gpF+BH8AL3hKQi8SZfo0KXPIC146hiCUG7QoYUlqG5FSJqr7kusUrGSZeWcZ37MMzOP4Lquyz9CGCpgGAa5XI58Po8sywP15eugXC6TyWRQVZVoNPp7YKCKniRfB7quk06nKZVKHNy0qbah8mxzV3dQJoLszYWJywEf4QM0TSORSGCaJjtam9MHq1M0Mx7kSG9xXbVRlyVGA8IH8i1Qs+AwKXaSa5ZLqljnOCWyGB0ZDAgFYH++C3jXkizWyC2IrE79ADQaDXavLEpPNoUliUhIoHBvsV0xOVuRmBQ/5/DlE96B80ebpgOxMQH9xSGrhNmYDvUfojc8bxOKorB12SQSgvX4KLevDrORADHJvwFP6nvKmxdmB8gq3Rn0i77AidFCCgqs9bTcCw33M/3llN8Aw17C0TKxYeUAAAAASUVORK5CYII="
