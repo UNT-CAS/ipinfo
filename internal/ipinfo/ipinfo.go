@@ -97,52 +97,52 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Create return structure
+	ipinfo := ipInfo{
+		IP: ip.String(),
+	}
+
 	// Query the maxmind database for that IP address.
 	recCity, err := dbCity.City(ip)
 	if err != nil {
 		log.Warn().Err(err).Str("ip", ip.String()).Msg("Warning: Unable to lookup in City database")
 	}
 
-	// Query the maxmind database for that IP address.
-	recASN, err := dbASN.ASN(ip)
-	if err != nil {
-		log.Warn().Err(err).Str("ip", ip.String()).Msg("Warning: Unable to lookup in ASN database")
+	// Query the maxmind database for that IP address, if we have the ASN database.
+	if dbASN != nil {
+		recASN, err := dbASN.ASN(ip)
+		if err != nil {
+			log.Warn().Err(err).Str("ip", ip.String()).Msg("Warning: Unable to lookup in ASN database")
+		} else {
+			ipinfo.ASN = recASN.AutonomousSystemNumber
+			ipinfo.Organization = recASN.AutonomousSystemOrganization
+		}
 	}
 
 	// String containing the region/subdivision of the IP. (E.g.: Scotland, or  California).
-	var sd string
 	// If there are subdivisions for this IP, set sd as the first element in the array's name.
 	if recCity.Subdivisions != nil {
-		sd = recCity.Subdivisions[0].Names[*Locale]
+		ipinfo.Region = recCity.Subdivisions[0].Names[*Locale]
 	}
 
-	loc := location{
-		Latitude:  recCity.Location.Latitude,
-		Longitude: recCity.Location.Longitude,
-	}
+	ipinfo.City = recCity.City.Names[*Locale]
 
-	country := codename{
+	ipinfo.Country = codename{
 		Code: recCity.Country.IsoCode,
 		Name: recCity.Country.Names[*Locale],
 	}
 
-	continent := codename{
+	ipinfo.Continent = codename{
 		Code: recCity.Continent.Code,
 		Name: recCity.Continent.Names[*Locale],
 	}
 
-	// Fill up the data array with the geoip data.
-	d := ipInfo{
-		IP:           ip.String(),
-		Country:      country,
-		City:         recCity.City.Names[*Locale],
-		Region:       sd,
-		Continent:    continent,
-		Postal:       recCity.Postal.Code,
-		Location:     loc,
-		ASN:          recASN.AutonomousSystemNumber,
-		Organization: recASN.AutonomousSystemOrganization,
+	ipinfo.Location = location{
+		Latitude:  recCity.Location.Latitude,
+		Longitude: recCity.Location.Longitude,
 	}
+
+	ipinfo.Postal = recCity.Postal.Code
 
 	// Since we don't have HTML output, nor other data from geo data,
 	// everything is the same if you do /8.8.8.8, /8.8.8.8/json or /8.8.8.8/geo.
@@ -160,7 +160,7 @@ func Lookup(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Query().Get("pretty") == "1" {
 		enc.SetIndent("", "  ")
 	}
-	enc.Encode(d)
+	enc.Encode(ipinfo)
 	if enableJSONP {
 		w.Write([]byte(");"))
 	}
