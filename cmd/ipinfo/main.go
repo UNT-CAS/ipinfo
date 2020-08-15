@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"time"
 
+	_ "github.com/jnovack/release"
+
 	"github.com/jnovack/ipinfo/internal/ipinfo"
 	"github.com/jnovack/ipinfo/pkg/chdir"
 	"github.com/mattn/go-isatty"

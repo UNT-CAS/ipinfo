@@ -3,6 +3,7 @@ module github.com/jnovack/ipinfo
 go 1.15
 
 require (
+	github.com/jnovack/release v0.0.2
 	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
 	github.com/mattn/go-isatty v0.0.12
 	github.com/namsral/flag v1.7.4-pre
