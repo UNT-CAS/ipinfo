@@ -10,9 +10,14 @@ func TestEmptyWorkDir(t *testing.T) {
 	testDir := ""
 	workDir = testDir
 	retval := WorkDir()
-	expected := execDir + "/"
+	expected := execDir
 	if retval != expected {
 		t.Errorf("working directory should be equal to executable directory plus trailing slash \nreturned:\n%v\nexpected:\n%v",
+			retval, expected)
+	}
+	var last = expected[len(expected)-1:]
+	if last != "/" {
+		t.Errorf("working directory must end in a slash\nreturned:\n%v\nexpected:\n%v",
 			retval, expected)
 	}
 }
@@ -21,7 +26,7 @@ func TestRelativeWorkDirWithoutSlash(t *testing.T) {
 	testDir := "assets"
 	workDir = testDir
 	retval := WorkDir()
-	expected := execDir + "/" + testDir + "/"
+	expected := execDir + testDir + "/"
 	if retval != expected {
 		t.Errorf("working directory should be equal to executable directory plus trailing slash \nreturned:\n%v\nexpected:\n%v",
 			retval, expected)
@@ -32,7 +37,7 @@ func TestRelativeWorkDirWithSlash(t *testing.T) {
 	testDir := "assets/"
 	workDir = testDir
 	retval := WorkDir()
-	expected := execDir + "/" + testDir
+	expected := execDir + testDir
 	if retval != expected {
 		t.Errorf("working directory should be equal to executable directory plus trailing slash \nreturned:\n%v\nexpected:\n%v",
 			retval, expected)
@@ -57,6 +62,17 @@ func TestAbsoluteWorkDirWithSlash(t *testing.T) {
 	expected := testDir
 	if retval != expected {
 		t.Errorf("working directory should be equal to executable directory plus trailing slash \nreturned:\n%v\nexpected:\n%v",
+			retval, expected)
+	}
+}
+
+func TestRootDir(t *testing.T) {
+	execDir = "/"
+	workDir = ""
+	retval := WorkDir()
+	expected := "/"
+	if retval != expected {
+		t.Errorf("working directory should be equal to executable directory\nreturned:\n%v\nexpected:\n%v",
 			retval, expected)
 	}
 }

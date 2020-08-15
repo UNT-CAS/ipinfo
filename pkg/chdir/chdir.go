@@ -30,24 +30,33 @@ func determineExecutableDirectory() string {
 
 // WorkDir returns the user-specified path. Empty string if no path was provided.
 func WorkDir() string {
+	var first string
+	var last string
+
+	// Add trailing slash if there is none
+	// This modifies the variable permanently
+	last = execDir[len(execDir)-1:]
+	if last != "/" {
+		execDir = execDir + "/"
+	}
 
 	// If no working directory, use executable directory
 	if len(workDir) < 1 {
-		return execDir + "/"
+		// execDir always has trailing slash
+		return execDir
 	}
 
-	// Add trailing slash if not included
+	// Add trailing slash if there is none
 	// This modifies the variable permanently
-	var last = workDir[len(workDir)-1:]
+	last = workDir[len(workDir)-1:]
 	if last != "/" {
 		workDir = workDir + "/"
 	}
 
 	// Return full path of working directory, pad if relative
-	var first = workDir[0:1]
+	first = workDir[0:1]
 	if first != "/" {
-		// execDir never has trailing slash
-		return execDir + "/" + workDir
+		return execDir + workDir
 	}
 	return workDir
 }
