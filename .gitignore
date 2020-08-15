@@ -8,7 +8,7 @@
 **/qemu**
 
 # golang
-**/build
+**/bin
 
 # project
 *.mmdb
