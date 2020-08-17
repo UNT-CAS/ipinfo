@@ -1,2 +1,14 @@
-ipinfo
+# vscode
+**/.env
+**/.vscode
+**/debug
+
+# docker
+**/docker-compose.override.yml
+**/qemu**
+
+# golang
+**/bin
+
+# project
 *.mmdb

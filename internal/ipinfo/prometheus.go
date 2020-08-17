@@ -1,7 +1,8 @@
-package main
+package ipinfo
 
 import (
 	"net/http"
+
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -17,7 +18,7 @@ var (
 	)
 )
 
-func prometheusInit() {
+func init() {
 	prometheus.MustRegister(duration)
 	http.Handle("/metrics", promhttp.Handler())
 }
