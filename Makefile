@@ -31,7 +31,7 @@ all: build
 .PHONY: assets
 assets:
 	cd assets/ && curl -LO https://raw.githubusercontent.com/wp-statistics/GeoLite2-City/master/GeoLite2-City.mmdb.gz
-	cd assets/ && curl -LO https://raw.githubusercontent.com/wp-statistics/GeoLite2-Country/master/GeoLite2-Country.mmdb.gz
+	# cd assets/ && curl -LO https://raw.githubusercontent.com/wp-statistics/GeoLite2-Country/master/GeoLite2-Country.mmdb.gz
 	# cd assets/ && curl -LO https://github.com/wp-statistics/GeoLite2-ASN/raw/master/GeoLite2-ASN.mmdb.gz
 	gunzip -fq assets/*.gz
 
